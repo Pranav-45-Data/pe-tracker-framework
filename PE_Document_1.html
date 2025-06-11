@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PE Tracker – Agile Execution Framework</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!--
+    Chosen Palette: "Corporate Elegance" - A professional palette using a light gray background (#F0F2F5), crisp white for cards (#FFFFFF), subtle blue-gray tones (#D3DCE6, #C7D0DA) for borders and secondary elements, a deep corporate blue (#2C5282) as the primary accent and for headings, and a dark slate gray (#334155) for main text. A vibrant emerald green (#059669) provides a clear success indicator.
+    -->
+    <!--
+    Application Structure Plan: The SPA is designed as an interactive dashboard with a prominent hero section for immediate engagement, a top navigation bar for quick access, and content organized into thematic sections (Criteria, Sprints, Benchmarks, Rewards, Workflow, Resources). The structure prioritizes visual appeal and ease of navigation through enhanced interactive elements. This non-linear design allows users to explore specific framework components, while interactive charts and visually distinct cards for rewards and workflow steps promote deeper understanding and engagement, making the framework digestible and actionable for the Process Excellence team.
+    -->
+    <!--
+    Visualization & Content Choices:
+    - Hero Section: Goal -> Engage & Inform -> Uses a large, inviting headline and description to immediately capture attention. Method: HTML/CSS with Tailwind.
+    - Overall Framework: Goal -> Inform & Organize -> Content is structured into clear, visually distinct sections with interactive navigation. Method: HTML/CSS with Tailwind.
+    - Idea Selection Criteria: Goal -> Inform -> Presented as a grid of distinct, icon-driven cards for easy visual scanning and understanding of each criterion. Method: HTML/CSS with Tailwind.
+    - Sprint Cycle: Goal -> Organize & Change -> A step-by-step process is visualized using cards with subtle hover effects, making the flow intuitive. Method: HTML/CSS with Tailwind's grid/flexbox.
+    - Benchmarks: Goal -> Compare & Analyze -> A dynamic bar chart (Chart.js) is used, with interactive buttons allowing users to switch between different key metrics. This enables active data exploration. Method: Chart.js (Canvas).
+    - Rewards System: Goal -> Inform & Motivate -> Presented as a grid of visually appealing cards, each with an icon and clear reward details, making them more attractive than a simple table. Method: HTML/CSS with Tailwind.
+    - Overall Workflow: Goal -> Organize -> A linear, numbered timeline-like flow with distinct steps, enhancing clarity of the process sequence. Method: HTML/CSS with Tailwind.
+    - Quick Resources: Goal -> Action -> Prominent, styled buttons lead directly to the Google Form and Sheet, encouraging immediate participation and access. Method: HTML/CSS with Tailwind.
+    - Interactive Elements: Goal -> Engage -> Added subtle `transform` and `transition` for cards, buttons, and workflow steps on hover, improving perceived responsiveness and user delight. Method: CSS.
+    -->
+    <!--
+    CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F2F5; /* Light Gray/Off-white */
+            color: #334155; /* Dark Slate Gray for text */
+        }
+        .card {
+            background-color: #FFFFFF; /* Pure White */
+            border: 1px solid #D3DCE6; /* Light Blue-Gray */
+            transition: all 0.3s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .nav-button {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            color: #334155; /* Default nav text */
+        }
+        .nav-button.active, .nav-button:hover {
+            border-bottom-color: #2C5282; /* Deep Corporate Blue */
+            color: #2C5282; /* Deep Corporate Blue */
+        }
+        .workflow-step {
+            transition: all 0.3s ease;
+            border-left-color: #D3DCE6; /* Light Blue-Gray */
+        }
+        .workflow-step:hover {
+            transform: translateY(-4px);
+            background-color: #F8F9FA; /* Slightly lighter white on hover */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        /* New button colors for primary and secondary actions */
+        .btn-primary {
+            background-color: #2C5282; /* Deep Corporate Blue */
+            color: #FFFFFF;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #367C9D; /* Slightly lighter blue/teal */
+        }
+        .btn-secondary {
+            border: 2px solid #2C5282; /* Deep Corporate Blue */
+            color: #2C5282;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #2C5282; /* Deep Corporate Blue */
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- CD1 Process Excellence Logo -->
+                <img src="https://placehold.co/150x40/000000/FFFFFF?text=CD1+Process+Excellence" alt="CD1 Process Excellence Logo" class="h-8 sm:h-10">
+                <nav class="hidden md:flex space-x-8">
+                    <button onclick="scrollToSection('criteria')" class="nav-button active">Criteria</button>
+                    <button onclick="scrollToSection('sprints')" class="nav-button">Sprints</button>
+                    <button onclick="scrollToSection('benchmarks')" class="nav-button">Benchmarks</button>
+                    <button onclick="scrollToSection('rewards')" class="nav-button">Rewards</button>
+                    <button onclick="scrollToSection('workflow')" class="nav-button">Workflow</button>
+                    <button onclick="scrollToSection('resources')" class="nav-button">Resources</button>
+                </nav>
+                 <div class="md:hidden">
+                    <select id="mobile-nav" onchange="scrollToSection(this.value)" class="bg-white border border-[#D3DCE6] text-[#334155] text-sm rounded-lg focus:ring-[#2C5282] focus:border-[#2C5282] block w-full p-2.5">
+                        <option value="criteria">Criteria</option>
+                        <option value="sprints">Sprints</option>
+                        <option value="benchmarks">Benchmarks</option>
+                        <option value="rewards">Rewards</option>
+                        <option value="workflow">Workflow</option>
+                        <option value="resources">Resources</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <!-- Hero Section - Tailored for Lead Presentation -->
+        <section id="hero" class="text-center py-16 md:py-24 bg-gradient-to-br from-[#FFFFFF] to-[#F0F2F5] rounded-xl shadow-xl mb-16">
+            <h2 class="text-5xl md:text-6xl font-extrabold text-[#2C5282] leading-tight mb-4 animate-fade-in">
+                PE Tracker: Our Agile Execution Framework
+            </h2>
+            <p class="text-xl md:text-2xl text-[#334155] max-w-3xl mx-auto mb-8 animate-fade-in-delay">
+                A Strategic Initiative for Continuous Process Improvement through Team Innovation.
+            </p>
+            <p class="text-lg text-[#334155] max-w-2xl mx-auto mb-10 animate-fade-in-delay-2">
+                This framework leverages an **Agile approach** to ensure we remain responsive and deliver value rapidly. It enables us to adapt quickly to evolving needs, focus on iterative improvements, and empower our teams for continuous optimization. This means faster, measurable impact on our operational excellence.
+            </p>
+            <div class="flex justify-center space-x-4 animate-fade-in-delay-3">
+                <button onclick="scrollToSection('criteria')" class="btn-primary px-8 py-3 rounded-lg text-lg font-semibold shadow-lg">
+                    Explore Framework Details
+                </button>
+                <button onclick="scrollToSection('workflow')" class="btn-secondary px-8 py-3 rounded-lg text-lg font-semibold shadow-lg">
+                    View Core Workflow
+                </button>
+            </div>
+        </section>
+
+        <section id="criteria" class="mb-16 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center text-[#2C5282] mb-8">1. Idea Selection Criteria</h3>
+            <p class="text-md text-center text-[#334155] mb-8">All ideas submitted through the Google Form are reviewed weekly. We assign a simple score to each, with those scoring above a set threshold selected for implementation based on these core criteria:</p>
+            <div class="max-w-6xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+                        <div class="text-5xl mb-3 text-[#2C5282]">🎯</div>
+                        <h4 class="font-bold text-xl text-[#2C5282] mb-2">Impact</h4>
+                        <p class="text-sm text-[#334155]">Will it significantly improve productivity, performance, or quality?</p>
+                    </div>
+                    <div class="card p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+                        <div class="text-5xl mb-3 text-[#2C5282]">🔧</div>
+                        <h4 class="font-bold text-xl text-[#2C5282] mb-2">Feasibility</h4>
+                        <p class="text-sm text-[#334155]">Can we implement this idea efficiently with our available time and tools?</p>
+                    </div>
+                    <div class="card p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+                        <div class="text-5xl mb-3 text-[#2C5282]">💡</div>
+                        <h4 class="font-bold text-xl text-[#2C5282] mb-2">Innovation</h4>
+                        <p class="text-sm text-[#334155]">Does this idea offer a fresh, new, or creative solution to an existing challenge?</p>
+                    </div>
+                    <div class="card p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+                        <div class="text-5xl mb-3 text-[#2C5282]">✅</div>
+                        <h4 class="font-bold text-xl text-[#2C5282] mb-2">Relevance</h4>
+                        <p class="text-sm text-[#334155]">Does this idea align directly with our current team goals and key performance indicators?</p>
+                    </div>
+                    <div class="card p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+                        <div class="text-5xl mb-3 text-[#2C5282]">⚖️</div>
+                        <h4 class="font-bold text-xl text-[#2C5282] mb-2">Effort vs. Benefit</h4>
+                        <p class="text-sm text-[#334155]">Is the expected positive outcome of the idea proportional to the effort required to implement it?</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sprints" class="mb-16 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center text-[#2C5282] mb-8">2. Our 2-Week Sprint Cycle</h3>
+            <p class="text-md text-center text-[#334155] mb-8">We follow a structured 2-week sprint to quickly turn the best ideas into impactful realities. Progress for all selected ideas is tracked transparently in a shared Google Sheet.</p>
+            <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 text-center">
+                <div class="card p-6 rounded-lg shadow-md flex flex-col items-center transform hover:scale-105">
+                    <div class="bg-[#2C5282] text-white rounded-full w-14 h-14 flex items-center justify-center font-bold text-2xl mb-4">1</div>
+                    <h4 class="font-bold text-xl text-[#2C5282] mb-2">Sprint Planning</h4>
+                    <p class="text-sm text-[#334155]"><strong>Monday, Week 1:</strong> We select 3-5 top ideas, assign clear ownership, and define actionable steps for implementation.</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md flex flex-col items-center transform hover:scale-105">
+                    <div class="bg-[#2C5282] text-white rounded-full w-14 h-14 flex items-center justify-center font-bold text-2xl mb-4">2</div>
+                    <h4 class="font-bold text-xl text-[#2C5282] mb-2">Execution</h4>
+                    <p class="text-sm text-[#334155]"><strong>Weeks 1 & 2:</strong> Dedicated team members actively work on their assigned ideas, transforming concepts into tangible improvements.</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md flex flex-col items-center transform hover:scale-105">
+                    <div class="bg-[#2C5282] text-white rounded-full w-14 h-14 flex items-center justify-center font-bold text-2xl mb-4">3</div>
+                    <h4 class="font-bold text-xl text-[#2C5282] mb-2">Sprint Review</h4>
+                    <p class="text-sm text-[#334155]"><strong>Friday, Week 2:</strong> We share progress updates, discuss any challenges encountered, and present the results of our implemented ideas.</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md flex flex-col items-center transform hover:scale-105">
+                    <div class="bg-[#2C5282] text-white rounded-full w-14 h-14 flex items-center justify-center font-bold text-2xl mb-4">4</div>
+                    <h4 class="font-bold text-xl text-[#2C5282] mb-2">Retrospective</h4>
+                    <p class="text-sm text-[#334155]"><strong>Post-Review:</strong> We reflect on the sprint, discussing successes, areas for improvement, and how to enhance our process for the next cycle.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="benchmarks" class="mb-16 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center text-[#2C5282] mb-2">3. Success Benchmarks</h3>
+            <p class="text-md text-center text-[#334155] mb-8">We measure our success through clear, quantifiable benchmarks, comparing performance sprint-over-sprint on a simple scoreboard to ensure continuous improvement.</p>
+            <div class="card p-6 md:p-8 rounded-xl shadow-lg">
+                <div class="flex flex-wrap justify-center mb-6 gap-2">
+                    <button id="btn-ideas" class="btn-primary px-6 py-2 rounded-lg text-sm font-semibold shadow-sm">Ideas Implemented</button>
+                    <button id="btn-metrics" class="bg-[#C7D0DA] text-[#334155] px-6 py-2 rounded-lg text-sm font-semibold shadow-sm hover:bg-[#2C5282] hover:text-white transition-colors">Process Metrics (%)</button>
+                    <button id="btn-time" class="bg-[#C7D0DA] text-[#334155] px-6 py-2 rounded-lg text-sm font-semibold shadow-sm hover:bg-[#2C5282] hover:text-white transition-colors">Implementation Time (Days)</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="benchmarkChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="rewards" class="mb-16 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center text-[#2C5282] mb-8">4. Rewards & Recognition</h3>
+            <p class="text-md text-center text-[#334155] mb-8">To keep the team motivated and engaged, we have a structured recognition system for every valuable contribution. All rewards are logged in a dedicated "Reward Tracker" tab in our shared sheet.</p>
+            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="card p-6 rounded-lg shadow-md flex flex-col items-center text-center transform hover:scale-105">
+                    <div class="text-5xl mb-3 text-[#2C5282]">🏆</div>
+                    <h4 class="font-bold text-xl text-[#2C5282] mb-2">Top Contributor</h4>
+                    <p class="text-sm text-[#334155] mb-2">For submitting the most impactful idea.</p>
+                    <p class="text-xs text-[#059669] font-semibold">Reward: Certificate / Voucher / Team Shoutout</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md flex flex-col items-center text-center transform hover:scale-105">
+                    <div class="text-5xl mb-3 text-[#2C5282]">💡</div>
+                    <h4 class="font-bold text-xl text-[#2C5282] mb-2">Innovator of the Sprint</h4>
+                    <p class="text-sm text-[#334155] mb-2">For the most creative and novel idea submitted.</p>
+                    <p class="text-xs text-[#059669] font-semibold">Reward: Spotlight in team meet</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md flex flex-col items-center text-center transform hover:scale-105">
+                    <div class="text-5xl mb-3 text-[#2C5282]">🔁</div>
+                    <h4 class="font-bold text-xl text-[#2C5282] mb-2">Consistent Performer</h4>
+                    <p class="text-sm text-[#334155] mb-2">For active participation in every sprint cycle.</p>
+                    <p class="text-xs text-[#059669] font-semibold">Reward: Badge / Small gift</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md flex flex-col items-center text-center transform hover:scale-105">
+                    <div class="text-5xl mb-3 text-[#2C5282]">🤝</div>
+                    <h4 class="font-bold text-xl text-[#2C5282] mb-2">Team Recognition</h4>
+                    <p class="text-sm text-[#334155] mb-2">For demonstrating the most collaborative effort.</p>
+                    <p class="text-xs text-[#059669] font-semibold">Reward: Special mention by leadership</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="workflow" class="scroll-mt-20 mb-16">
+            <h3 class="text-3xl font-bold text-center text-[#2C5282] mb-8">5. Overall Workflow & Ownership</h3>
+            <p class="text-md text-center text-[#334155] mb-8">Understand the complete journey from an initial idea to a successfully implemented improvement within our framework, along with key roles.</p>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <h4 class="text-xl font-semibold text-[#2C5282] mb-4">The Process from Idea to Implementation</h4>
+                    <div class="relative pl-12 md:pl-16">
+                        <div class="absolute left-4 md:left-6 top-0 bottom-0 w-1 bg-[#D3DCE6] rounded-full"></div>
+                        <div class="workflow-step relative mb-6 p-4 border-l-4 border-l-[#2C5282] rounded-r-lg bg-white shadow-sm hover:shadow-md transform hover:scale-[1.01]">
+                            <div class="absolute -left-6 md:-left-8 top-3 bg-[#2C5282] text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">1</div>
+                            <h5 class="font-bold text-lg text-[#2C5282]">Idea Submission</h5>
+                            <p class="text-sm text-[#334155]">Team members submit their innovative ideas via the dedicated Google Form.</p>
+                        </div>
+                        <div class="workflow-step relative mb-6 p-4 border-l-4 border-l-[#2C5282] rounded-r-lg bg-white shadow-sm hover:shadow-md transform hover:scale-[1.01]">
+                            <div class="absolute -left-6 md:-left-8 top-3 bg-[#2C5282] text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">2</div>
+                            <h5 class="font-bold text-lg text-[#2C5282]">Weekly Review</h5>
+                            <p class="text-sm text-[#334155]">Leads conduct a thorough weekly review, scoring ideas based on predefined criteria.</p>
+                        </div>
+                        <div class="workflow-step relative mb-6 p-4 border-l-4 border-l-[#2C5282] rounded-r-lg bg-white shadow-sm hover:shadow-md transform hover:scale-[1.01]">
+                            <div class="absolute -left-6 md:-left-8 top-3 bg-[#2C5282] text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">3</div>
+                            <h5 class="font-bold text-lg text-[#2C5282]">Sprint Selection</h5>
+                            <p class="text-sm text-[#334155]">The highest-scoring ideas are selected and moved into the upcoming 2-week sprint for implementation.</p>
+                        </div>
+                        <div class="workflow-step relative mb-6 p-4 border-l-4 border-l-[#2C5282] rounded-r-lg bg-white shadow-sm hover:shadow-md transform hover:scale-[1.01]">
+                            <div class="absolute -left-6 md:-left-8 top-3 bg-[#2C5282] text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">4</div>
+                            <h5 class="font-bold text-lg text-[#2C5282]">Execution & Tracking</h5>
+                            <p class="text-sm text-[#334155]">Assigned Idea Owners begin implementation, with progress transparently tracked in the Google Sheet.</p>
+                        </div>
+                        <div class="workflow-step relative mb-6 p-4 border-l-4 border-l-[#2C5282] rounded-r-lg bg-white shadow-sm hover:shadow-md transform hover:scale-[1.01]">
+                            <div class="absolute -left-6 md:-left-8 top-3 bg-[#2C5282] text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">5</div>
+                            <h5 class="font-bold text-lg text-[#2C5282]">Review & Celebrate</h5>
+                            <p class="text-sm text-[#334155]">At sprint end, results are reviewed, wins are celebrated, and planning for the next sprint begins.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-6 rounded-xl shadow-lg h-fit flex flex-col">
+                    <h4 class="text-xl font-semibold text-[#2C5282] mb-4">Ownership Roles</h4>
+                    <p class="text-sm text-[#334155] mb-4">Clear roles ensure accountability and smooth execution throughout the process.</p>
+                    <ul class="space-y-4 text-[#334155] flex-grow">
+                        <li>
+                            <p class="font-bold text-[#2C5282]">Sprint Lead</p>
+                            <p class="text-sm">Coordinates sprints, monitors progress, and conducts reviews to keep the process on track.</p>
+                        </li>
+                        <li>
+                            <p class="font-bold text-[#2C5282]">Idea Owner</p>
+                            <p class="text-sm">Responsible for the direct execution of a selected idea and sharing updates on its progress.</p>
+                        </li>
+                        <li>
+                            <p class="font-bold text-[#2C5282]">Leads/Managers</p>
+                            <p class="text-sm">Provide crucial support in evaluating ideas, offering mentorship, and removing roadblocks.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="resources" class="mb-16 scroll-mt-20 text-center">
+            <h3 class="text-3xl font-bold text-[#2C5282] mb-8">Quick Resources</h3>
+            <p class="text-lg text-[#334155] mb-6">Access the tools you need to participate and track progress in our Process Excellence journey.</p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <a href="YOUR_GOOGLE_FORM_LINK_HERE" target="_blank" class="btn-primary px-8 py-4 rounded-lg text-xl font-semibold shadow-md">
+                    Submit Your Ideas Now!
+                </a>
+                <a href="YOUR_GOOGLE_SHEET_LINK_HERE" target="_blank" class="bg-[#C7D0DA] text-[#334155] px-8 py-4 rounded-lg text-xl font-semibold shadow-md hover:bg-[#2C5282] hover:text-white transition-colors duration-300">
+                    View PE Tracker Sheet
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const chartData = {
+            ideas: {
+                labels: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'],
+                data: [3, 5, 4, 6],
+                backgroundColor: '#2C5282', /* Deep Corporate Blue */
+                label: 'Number of Ideas Implemented'
+            },
+            metrics: {
+                labels: ['ENR', 'AHT', 'Resolutions'],
+                data: [15, -10, 20],
+                backgroundColor: '#059669', /* Emerald Green */
+                label: '% Improvement in Process Metrics'
+            },
+            time: {
+                labels: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'],
+                data: [10, 8, 9, 7],
+                backgroundColor: '#367C9D', /* Slightly lighter blue/teal */
+                label: 'Avg. Implementation Time (Days)'
+            }
+        };
+
+        const ctx = document.getElementById('benchmarkChart').getContext('2d');
+        let myChart; // Declare myChart here so it's accessible
+
+        // Event listener to ensure the DOM is fully loaded before trying to create the chart
+        document.addEventListener('DOMContentLoaded', () => {
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.ideas.labels,
+                    datasets: [{
+                        label: chartData.ideas.label,
+                        data: chartData.ideas.data,
+                        backgroundColor: chartData.ideas.backgroundColor,
+                        borderColor: 'rgba(0,0,0,0)',
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: '#334155' /* Text color for legend */
+                            }
+                        },
+                        tooltip: {
+                             callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                         // Access chart instance properties via context.chart
+                                         if(context.chart.data.datasets[0].label.includes('%')){
+                                              label += context.parsed.y + '%';
+                                         } else {
+                                              label += context.parsed.y;
+                                         }
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#334155', /* Text color for Y-axis ticks */
+                                 callback: function(value, index, values) {
+                                    // Access chart instance properties via this.chart (where 'this' is the scale)
+                                    if(this.chart.data.datasets[0].label.includes('%')){
+                                        return value + '%';
+                                    }
+                                    return value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#334155' /* Text color for X-axis ticks */
+                            }
+                        }
+                    }
+                }
+            });
+        });
+        
+        function updateChart(dataType) {
+            if (!myChart) {
+                // If updateChart is somehow called before myChart is initialized,
+                // this check prevents an error.
+                return;
+            }
+            const newChartData = chartData[dataType];
+            myChart.data.labels = newChartData.labels;
+            myChart.data.datasets[0].data = newChartData.data;
+            myChart.data.datasets[0].label = newChartData.label;
+            myChart.data.datasets[0].backgroundColor = newChartData.backgroundColor;
+            myChart.update();
+        }
+
+        const buttons = {
+            'btn-ideas': 'ideas',
+            'btn-metrics': 'metrics',
+            'btn-time': 'time'
+        };
+        
+        const setActiveButton = (activeBtnId) => {
+             Object.keys(buttons).forEach(btnId => {
+                 const button = document.getElementById(btnId);
+                 if(btnId === activeBtnId){
+                    button.classList.remove('bg-[#C7D0DA]', 'text-[#334155]');
+                    button.classList.add('btn-primary');
+                 } else {
+                    button.classList.remove('btn-primary');
+                    button.classList.add('bg-[#C7D0DA]', 'text-[#334155]');
+                 }
+             });
+        };
+
+        Object.keys(buttons).forEach(btnId => {
+            document.getElementById(btnId).addEventListener('click', (e) => {
+                updateChart(buttons[btnId]);
+                setActiveButton(btnId);
+            });
+        });
+        
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+                const navButtons = document.querySelectorAll('.nav-button');
+                navButtons.forEach(button => {
+                     button.classList.remove('active');
+                     if(button.getAttribute('onclick').includes(sectionId)){
+                         button.classList.add('active');
+                     }
+                });
+                const mobileNav = document.getElementById('mobile-nav');
+                mobileNav.value = sectionId;
+            }
+        }
+        
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navButtons = document.querySelectorAll('.nav-button');
+            let currentSection = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.scrollY >= sectionTop - 100) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            navButtons.forEach(button => {
+                button.classList.remove('active');
+                if (button.getAttribute('onclick').includes(currentSection)) {
+                    button.classList.add('active');
+                }
+            });
+            
+             const mobileNav = document.getElementById('mobile-nav');
+             if(currentSection){
+                 mobileNav.value = currentSection;
+             }
+        });
+    </script>
+</body>
+</html>
