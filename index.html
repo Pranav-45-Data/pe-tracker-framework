@@ -109,7 +109,7 @@
             color: #888;
             cursor: pointer;
         }
-         .criteria-card {
+        .criteria-card {
             cursor: pointer;
         }
     </style>
@@ -119,7 +119,7 @@
     <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <img src="https://placehold.co/150x40/000000/FFFFFF?text=CD1+Process+Excellence" alt="New logo" class="h-8 sm:h-10">
+                <img src="images/process-excellence-logo.png" alt="Process Excellence Logo" class="h-10 sm:h-12 md:h-14">
                 <nav class="hidden md:flex space-x-8">
                     <button onclick="scrollToSection('criteria')" class="nav-button active">Criteria</button>
                     <button onclick="scrollToSection('sprints')" class="nav-button">Sprints</button>
@@ -128,7 +128,7 @@
                     <button onclick="scrollToSection('workflow')" class="nav-button">Workflow</button>
                     <button onclick="scrollToSection('resources')" class="nav-button">Resources</button>
                 </nav>
-                 <div class="md:hidden">
+                <div class="md:hidden">
                     <select id="mobile-nav" onchange="scrollToSection(this.value)" class="bg-white border border-[#D3DCE6] text-[#334155] text-sm rounded-lg focus:ring-[#2C5282] focus:border-[#2C5282] block w-full p-2.5">
                         <option value="criteria">Criteria</option>
                         <option value="sprints">Sprints</option>
@@ -147,7 +147,7 @@
             <h2 class="text-5xl md:text-6xl font-extrabold text-[#2C5282] leading-tight mb-4">
                 Process Excellence: Our Execution Framework
             </h2>
-             <p class="text-2xl md:text-3xl font-semibold text-gray-500 mb-6">
+            <p class="text-2xl md:text-3xl font-semibold text-gray-500 mb-6">
                 Better. Smarter. Everyday.
             </p>
             <p class="text-xl md:text-2xl text-[#334155] max-w-3xl mx-auto mb-8">
@@ -187,7 +187,7 @@
                         <p class="text-sm text-[#334155]">Does this idea offer a fresh, new, or creative solution to an existing challenge?</p>
                     </div>
                     <div class="card criteria-card p-6 rounded-lg shadow-md flex flex-col items-center text-center" data-criteria="cost">
-                         <div class="text-5xl mb-3 text-[#2C5282]">⚖️</div>
+                        <div class="text-5xl mb-3 text-[#2C5282]">⚖️</div>
                         <h4 class="font-bold text-xl text-[#2C5282] mb-2">Cost vs. Benefit</h4>
                         <p class="text-sm text-[#334155]">Is the expected positive outcome proportional to the effort required to implement it?</p>
                     </div>
@@ -406,18 +406,18 @@
                             }
                         },
                         tooltip: {
-                             callbacks: {
+                            callbacks: {
                                 label: function(context) {
                                     let label = context.dataset.label || '';
                                     if (label) {
                                         label += ': ';
                                     }
                                     if (context.parsed.y !== null) {
-                                         if(context.dataset.label.includes('%')){
-                                             label += context.parsed.y + '%';
-                                         } else {
-                                             label += context.parsed.y;
-                                         }
+                                        if(context.dataset.label.includes('%')){
+                                            label += context.parsed.y + '%';
+                                        } else {
+                                            label += context.parsed.y;
+                                        }
                                     }
                                     return label;
                                 }
@@ -429,12 +429,12 @@
                             beginAtZero: true,
                             ticks: {
                                 color: '#334155',
-                                 callback: function(value, index, values) {
-                                     if(this.chart.data.datasets[0].label.includes('%')){
-                                         return value + '%';
-                                     }
-                                     return value;
-                                 }
+                                callback: function(value, index, values) {
+                                    if(this.chart.data.datasets[0].label.includes('%')){
+                                        return value + '%';
+                                    }
+                                    return value;
+                                }
                             }
                         },
                         x: {
@@ -468,16 +468,16 @@
         };
         
         const setActiveButton = (activeBtnId) => {
-             Object.keys(buttons).forEach(btnId => {
-                 const button = document.getElementById(btnId);
-                 if(btnId === activeBtnId){
-                     button.classList.remove('bg-[#C7D0DA]', 'text-[#334155]');
-                     button.classList.add('btn-primary');
-                 } else {
-                     button.classList.remove('btn-primary');
-                     button.classList.add('bg-[#C7D0DA]', 'text-[#334155]');
-                 }
-             });
+            Object.keys(buttons).forEach(btnId => {
+                const button = document.getElementById(btnId);
+                if(btnId === activeBtnId){
+                    button.classList.remove('bg-[#C7D0DA]', 'text-[#334155]');
+                    button.classList.add('btn-primary');
+                } else {
+                    button.classList.remove('btn-primary');
+                    button.classList.add('bg-[#C7D0DA]', 'text-[#334155]');
+                }
+            });
         };
 
         Object.keys(buttons).forEach(btnId => {
@@ -493,13 +493,13 @@
                 section.scrollIntoView({ behavior: 'smooth' });
                 const navButtons = document.querySelectorAll('.nav-button');
                 navButtons.forEach(button => {
-                     button.classList.remove('active');
-                     if(button.getAttribute('onclick').includes(sectionId)){
-                          button.classList.add('active');
-                     }
+                    button.classList.remove('active');
+                    if(button.getAttribute('onclick').includes(sectionId)){
+                        button.classList.add('active');
+                    }
                 });
-                 const mobileNav = document.getElementById('mobile-nav');
-                 mobileNav.value = sectionId;
+                const mobileNav = document.getElementById('mobile-nav');
+                mobileNav.value = sectionId;
             }
         }
         
@@ -522,10 +522,10 @@
                 }
             });
             
-             const mobileNav = document.getElementById('mobile-nav');
-             if(currentSection){
-                  mobileNav.value = currentSection;
-             }
+            const mobileNav = document.getElementById('mobile-nav');
+            if(currentSection){
+                mobileNav.value = currentSection;
+            }
         });
 
         // Modal Logic
