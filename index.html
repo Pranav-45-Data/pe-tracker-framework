@@ -118,7 +118,10 @@
     <header class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
-                <img src="https://i.imgur.com/your-logo.png" alt="Process Excellence Logo" class="h-12"> <nav class="hidden md:flex space-x-10">
+                <div class="text-2xl font-bold text-slate-800">
+                    Process Excellence
+                </div>
+                <nav class="hidden md:flex space-x-10">
                     <button onclick="scrollToSection('criteria')" class="nav-button active">Criteria</button>
                     <button onclick="scrollToSection('sprints')" class="nav-button">Sprints</button>
                     <button onclick="scrollToSection('benchmarks')" class="nav-button">Benchmarks</button>
@@ -354,8 +357,10 @@
             metrics: { labels: ['Customer Exp.', 'AHT', 'Resolutions'], data: [15, -10, 20], backgroundColor: 'rgba(16, 185, 129, 0.7)', borderColor: 'rgba(16, 185, 129, 1)', label: '% Improvement in Process Metrics' },
             time: { labels: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'], data: [10, 8, 9, 7], backgroundColor: 'rgba(107, 114, 128, 0.7)', borderColor: 'rgba(107, 114, 128, 1)', label: 'Avg. Implementation Time (Days)' }
         };
+        
         const ctx = document.getElementById('benchmarkChart').getContext('2d');
         let myChart;
+
         document.addEventListener('DOMContentLoaded', () => {
             myChart = new Chart(ctx, {
                 type: 'bar',
@@ -373,7 +378,8 @@
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: true, position: 'top', labels: { color: '#1e293b', font: { size: 14 } } },
+                    plugins: { 
+                        legend: { display: true, position: 'top', labels: { color: '#1e293b', font: { size: 14 } } },
                         tooltip: {
                             callbacks: {
                                 label: (context) => `${context.dataset.label || ''}: ${context.parsed.y}${context.dataset.label.includes('%') ? '%' : ''}`
@@ -381,12 +387,26 @@
                         }
                     },
                     scales: {
-                        y: { beginAtZero: true, ticks: { color: '#475569', callback: (value) => this.chart.data.datasets[0].label.includes('%') ? `${value}%` : value }, grid: { color: '#e2e8f0' } },
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { 
+                                color: '#475569', 
+                                // FIX: Use the chart instance passed to the callback to access data
+                                callback: function(value) {
+                                    if(this.chart.data.datasets[0].label.includes('%')){
+                                        return value + '%';
+                                    }
+                                    return value;
+                                }
+                            }, 
+                            grid: { color: '#e2e8f0' } 
+                        },
                         x: { ticks: { color: '#475569' }, grid: { display: false } }
                     }
                 }
             });
         });
+
         function updateChart(dataType) {
             if (!myChart) return;
             const newChartData = chartData[dataType];
@@ -395,10 +415,11 @@
             myChart.data.datasets[0].label = newChartData.label;
             myChart.data.datasets[0].backgroundColor = newChartData.backgroundColor;
             myChart.data.datasets[0].borderColor = newChartData.borderColor;
-            myChart.options.scales.y.ticks.callback = (value) => newChartData.label.includes('%') ? `${value}%` : value;
             myChart.update();
         }
+
         const buttons = { 'btn-submitted': 'submitted', 'btn-ideas': 'ideas', 'btn-metrics': 'metrics', 'btn-time': 'time' };
+        
         const setActiveButton = (activeBtnId) => {
             Object.keys(buttons).forEach(btnId => {
                 const button = document.getElementById(btnId);
@@ -410,36 +431,43 @@
                 }
             });
         };
+
         Object.keys(buttons).forEach(btnId => {
             document.getElementById(btnId).addEventListener('click', (e) => {
                 updateChart(buttons[btnId]);
                 setActiveButton(btnId);
             });
         });
+
         function scrollToSection(sectionId) {
             const section = document.getElementById(sectionId);
             if (section) {
                 section.scrollIntoView({ behavior: 'smooth' });
-                document.querySelectorAll('.nav-button').forEach(button => {
-                    button.classList.toggle('active', button.getAttribute('onclick').includes(sectionId));
-                });
-                document.getElementById('mobile-nav').value = sectionId;
             }
         }
+
         window.addEventListener('scroll', () => {
             let currentSection = '';
-            document.querySelectorAll('section').forEach(section => {
-                if (window.scrollY >= section.offsetTop - 150) {
+            document.querySelectorAll('main > section').forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.scrollY >= sectionTop - 150) {
                     currentSection = section.getAttribute('id');
                 }
             });
+
             document.querySelectorAll('.nav-button').forEach(button => {
-                button.classList.toggle('active', button.getAttribute('onclick').includes(currentSection));
+                button.classList.remove('active');
+                 if (button.getAttribute('onclick').includes(currentSection)) {
+                    button.classList.add('active');
+                }
             });
-            if (currentSection) {
-                document.getElementById('mobile-nav').value = currentSection;
+            
+            const mobileNav = document.getElementById('mobile-nav');
+            if (currentSection && mobileNav.value !== currentSection) {
+                mobileNav.value = currentSection;
             }
         });
+
         const criteriaModal = document.getElementById('criteria-modal');
         const modalTitle = document.getElementById('modal-title');
         const modalBody = document.getElementById('modal-body');
@@ -450,6 +478,7 @@
             innovation: { title: 'Scoring Guide: Innovation', content: `<p>How new or creative is the proposed solution?</p><ul class="list-disc list-inside mt-2 space-y-2"><li><strong>Score 3 (High):</strong> A truly original, out-of-the-box solution.</li><li><strong>Score 2 (Medium):</strong> A clever adaptation or a new approach for our team.</li><li><strong>Score 1 (Low):</strong> A standard fix or a minor tweak to an existing process.</li></ul>` },
             cost: { title: 'Scoring Guide: Cost vs. Benefit', content: `<p>Is the return on investment worth the effort?</p><ul class="list-disc list-inside mt-2 space-y-2"><li><strong>Score 3 (High):</strong> A "quick win" with high benefit for very low effort.</li><li><strong>Score 2 (Medium):</strong> The effort is reasonable for the expected benefit.</li><li><strong>Score 1 (Low):</strong> High effort for a very small or uncertain gain.</li></ul>` }
         };
+
         document.querySelectorAll('[data-criteria]').forEach(card => {
             card.addEventListener('click', () => {
                 const data = modalData[card.dataset.criteria];
@@ -458,6 +487,7 @@
                 criteriaModal.classList.add('visible');
             });
         });
+
         function closeModal() { criteriaModal.classList.remove('visible'); }
         modalCloseBtn.addEventListener('click', closeModal);
         criteriaModal.addEventListener('click', (e) => { if (e.target === criteriaModal) closeModal(); });
